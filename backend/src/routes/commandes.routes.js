@@ -1,6 +1,7 @@
 const router = require("express").Router();
 const Commande = require("../models/Commande");
 const Prestation = require("../models/Prestation");
+const Prestataire = require("../models/Prestataire");
 const auth = require("../middlewares/auth.middleware");
 
 // Créer une commande
@@ -117,6 +118,37 @@ router.put("/:id/cancel", auth, async (req, res) => {
   res.json({ message: "Commande annulée", commande });
 });
 
+// ADMIN — assigner automatiquement un prestataire
+router.put("/:id/assign", auth, async (req, res) => {
+  if (req.user.role !== "admin")
+    return res.status(403).json({ message: "Accès interdit" });
+
+  const commande = await Commande.findById(req.params.id).populate("prestationId");
+
+  if (!commande)
+    return res.status(404).json({ message: "Commande introuvable" });
+
+  // Trouver les prestataires compatibles
+  const prestataires = await Prestataire.find({
+    validated: true,
+    services: commande.prestationId._id
+  });
+
+  if (prestataires.length === 0)
+    return res.status(400).json({ message: "Aucun prestataire disponible pour cette prestation" });
+
+  // Sélection simple : premier prestataire disponible
+  const prestataireChoisi = prestataires[0];
+
+  commande.prestataireId = prestataireChoisi._id;
+  await commande.save();
+
+  res.json({
+    message: "Prestataire assigné automatiquement",
+    commande
+  });
+});
+
 
 module.exports = router;
 
@@ -219,8 +251,6 @@ module.exports = router;
  *               properties:
  *                 message:
  *                   type: string
- *                 commande:
- *                   $ref: '#/components/schemas/Commande'
  *       400:
  *         description: La commande ne peut pas être confirmée
  *       403:
@@ -254,8 +284,6 @@ module.exports = router;
  *               properties:
  *                 message:
  *                   type: string
- *                 commande:
- *                   $ref: '#/components/schemas/Commande'
  *       400:
  *         description: La commande ne peut pas être démarrée
  *       403:
@@ -289,8 +317,6 @@ module.exports = router;
  *               properties:
  *                 message:
  *                   type: string
- *                 commande:
- *                   $ref: '#/components/schemas/Commande'
  *       400:
  *         description: La commande ne peut pas être terminée
  *       403:
@@ -324,12 +350,45 @@ module.exports = router;
  *               properties:
  *                 message:
  *                   type: string
- *                 commande:
- *                   $ref: '#/components/schemas/Commande'
  *       400:
  *         description: Impossible d'annuler cette commande
  *       403:
  *         description: Accès interdit (non voyageur)
+ *       404:
+ *         description: Commande introuvable
+ */
+
+/**
+ * @swagger
+ * /commandes/{id}/assign:
+ *   put:
+ *     summary: Assigner automatiquement un prestataire à une commande (admin)
+ *     tags: [Commandes]
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         description: ID de la commande
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Prestataire assigné automatiquement
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 commande:
+ *                   $ref: '#/components/schemas/Commande'
+ *       400:
+ *         description: Aucun prestataire disponible
+ *       403:
+ *         description: Accès interdit (non admin)
  *       404:
  *         description: Commande introuvable
  */

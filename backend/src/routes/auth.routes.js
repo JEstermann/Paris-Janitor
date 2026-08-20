@@ -34,3 +34,57 @@ router.post("/login", async (req, res) => {
 });
 
 module.exports = router;
+
+/**
+ * @swagger
+ * tags:
+ *   name: Auth
+ *   description: Gestion de l'authentification
+ */
+
+/**
+ * @swagger
+ * /auth/register:
+ *   post:
+ *     summary: Inscription utilisateur
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *               role:
+ *                 type: string
+ *                 enum: [voyageur, admin]
+ *     responses:
+ *       200:
+ *         description: Utilisateur créé
+ */
+
+/**
+ * @swagger
+ * /auth/login:
+ *   post:
+ *     summary: Connexion utilisateur
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Token JWT retourné
+ */

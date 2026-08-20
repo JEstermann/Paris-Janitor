@@ -1,0 +1,369 @@
+openapi: 3.0.0
+info:
+  title: Paris Janitor API
+  version: 1.0.0
+  description: API backend pour Paris Janitor (Voyageurs + Administration)
+
+servers:
+  - url: http://localhost:5000
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    User:
+      type: object
+      properties:
+        _id:
+          type: string
+        role:
+          type: string
+          enum: [voyageur, admin]
+        email:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+        phone:
+          type: string
+        vipSubscription:
+          type: object
+          properties:
+            type:
+              type: string
+              enum: [free, bag_packer, explorator]
+            startDate:
+              type: string
+              format: date-time
+            endDate:
+              type: string
+              format: date-time
+            active:
+              type: boolean
+
+    Prestation:
+      type: object
+      properties:
+        _id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        category:
+          type: string
+        priceHT:
+          type: number
+        priceTTC:
+          type: number
+        isVariablePrice:
+          type: boolean
+        commissionPJ:
+          type: number
+
+    Commande:
+      type: object
+      properties:
+        _id:
+          type: string
+        userId:
+          type: string
+        prestationId:
+          type: string
+        prestataireId:
+          type: string
+        status:
+          type: string
+        montantHT:
+          type: number
+        montantTTC:
+          type: number
+        commissionPJ:
+          type: number
+        paymentStatus:
+          type: string
+
+    Prestataire:
+      type: object
+      properties:
+        _id:
+          type: string
+        name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        validated:
+          type: boolean
+
+    Stats:
+      type: object
+      properties:
+        totalUsers:
+          type: integer
+        totalCommandes:
+          type: integer
+        totalCA:
+          type: number
+
+paths:
+  /:
+    get:
+      summary: Test backend
+      responses:
+        '200':
+          description: Backend OK
+
+  /auth/register:
+    post:
+      summary: Inscription utilisateur
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+                role:
+                  type: string
+                  enum: [voyageur, admin]
+      responses:
+        '200':
+          description: Utilisateur créé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+
+  /auth/login:
+    post:
+      summary: Connexion utilisateur
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Token JWT
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+
+  /prestations:
+    get:
+      summary: Liste des prestations
+      responses:
+        '200':
+          description: Liste des prestations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Prestation'
+    post:
+      summary: Créer une prestation (admin)
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Prestation'
+      responses:
+        '200':
+          description: Prestation créée
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Prestation'
+
+  /prestations/{id}:
+    get:
+      summary: Obtenir une prestation
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Prestation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Prestation'
+    put:
+      summary: Modifier une prestation (admin)
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Prestation'
+      responses:
+        '200':
+          description: Prestation modifiée
+    delete:
+      summary: Supprimer une prestation (admin)
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Prestation supprimée
+
+  /commandes:
+    get:
+      summary: Liste des commandes (admin)
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Liste des commandes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Commande'
+    post:
+      summary: Créer une commande (voyageur)
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                prestationId:
+                  type: string
+      responses:
+        '200':
+          description: Commande créée
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Commande'
+
+  /commandes/me:
+    get:
+      summary: Mes commandes (voyageur)
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Liste des commandes de l'utilisateur
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Commande'
+
+  /commandes/pay/{id}:
+    post:
+      summary: Paiement Stripe pour une commande
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Client secret Stripe
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  clientSecret:
+                    type: string
+
+  /prestataires:
+    get:
+      summary: Liste des prestataires (admin)
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Liste des prestataires
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Prestataire'
+
+  /prestataires/validate/{id}:
+    put:
+      summary: Valider un prestataire (admin)
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Prestataire validé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Prestataire'
+
+  /admin/stats:
+    get:
+      summary: Statistiques admin
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Statistiques globales
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Stats'

@@ -21,3 +21,23 @@ router.get("/stats", auth, async (req, res) => {
 });
 
 module.exports = router;
+
+/**
+ * @swagger
+ * tags:
+ *   name: Admin
+ *   description: Routes administrateur
+ */
+
+/**
+ * @swagger
+ * /admin/stats:
+ *   get:
+ *     summary: Statistiques globales
+ *     tags: [Admin]
+ *     security:
+ *       - BearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Statistiques renvoyées
+ */

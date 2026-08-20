@@ -48,6 +48,43 @@ router.post("/pay/:id", auth, async (req, res) => {
 
 
 module.exports = router;
+
+/**
+ * @swagger
+ * tags:
+ *   name: Commandes
+ *   description: Gestion des commandes et réservations
+ */
+
+/**
+ * @swagger
+ * /commandes:
+ *   post:
+ *     summary: Créer une commande
+ *     tags: [Commandes]
+ *     security:
+ *       - BearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               prestationId:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Commande créée
+ */
+
+/**
+ * @swagger
+ * /commandes/me:
+ *   get:
+ *     summary: Voir mes commandes
+ *     tags: [Commandes]
+ *     security:
  *       - BearerAuth: []
  *     responses:
  *       200:

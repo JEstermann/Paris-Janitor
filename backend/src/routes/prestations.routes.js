@@ -39,3 +39,95 @@ router.delete("/:id", auth, async (req, res) => {
 });
 
 module.exports = router;
+
+/**
+ * @swagger
+ * tags:
+ *   name: Prestations
+ *   description: Catalogue des prestations
+ */
+
+/**
+ * @swagger
+ * /prestations:
+ *   get:
+ *     summary: Liste des prestations
+ *     tags: [Prestations]
+ *     responses:
+ *       200:
+ *         description: Liste des prestations
+ */
+
+/**
+ * @swagger
+ * /prestations/{id}:
+ *   get:
+ *     summary: Obtenir une prestation
+ *     tags: [Prestations]
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Prestation trouvée
+ */
+
+/**
+ * @swagger
+ * /prestations:
+ *   post:
+ *     summary: Créer une prestation (admin)
+ *     tags: [Prestations]
+ *     security:
+ *       - BearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Prestation'
+ *     responses:
+ *       200:
+ *         description: Prestation créée
+ */
+
+/**
+ * @swagger
+ * /prestations/{id}:
+ *   put:
+ *     summary: Modifier une prestation (admin)
+ *     tags: [Prestations]
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Prestation modifiée
+ */
+
+/**
+ * @swagger
+ * /prestations/{id}:
+ *   delete:
+ *     summary: Supprimer une prestation (admin)
+ *     tags: [Prestations]
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Prestation supprimée
+ */

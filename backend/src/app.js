@@ -17,3 +17,5 @@ app.use("/commandes", require("./routes/commandes.routes"));
 app.use("/prestataires", require("./routes/prestataires.routes"));
 app.use("/admin", require("./routes/admin.routes"));
 
+const swaggerDocs = require("./swagger");
+swaggerDocs(app);

@@ -24,3 +24,42 @@ router.get("/", auth, async (req, res) => {
 });
 
 module.exports = router;
+
+/**
+ * @swagger
+ * tags:
+ *   name: Prestataires
+ *   description: Gestion des prestataires
+ */
+
+/**
+ * @swagger
+ * /prestataires:
+ *   get:
+ *     summary: Liste des prestataires (admin)
+ *     tags: [Prestataires]
+ *     security:
+ *       - BearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Liste des prestataires
+ */
+
+/**
+ * @swagger
+ * /prestataires/validate/{id}:
+ *   put:
+ *     summary: Valider un prestataire (admin)
+ *     tags: [Prestataires]
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Prestataire validé
+ */

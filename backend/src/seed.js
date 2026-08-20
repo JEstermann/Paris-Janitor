@@ -23,7 +23,7 @@ async function seed() {
     {
       role: "admin",
       email: "admin@pj.com",
-      passwordHash: "$2a$10$123456789012345678901u", // FAUX HASH
+      passwordHash: "$2b$10$0mSjPuzER7qPFqL3zZt4euYg6uUnzNzXn6y0AShQL8glGfvVTT12e", // FAUX HASH
       firstName: "Admin",
       lastName: "ParisJanitor"
     },

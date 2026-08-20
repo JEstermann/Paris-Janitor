@@ -23,10 +23,10 @@ router.post("/login", async (req, res) => {
   const { email, password } = req.body;
 
   const user = await User.findOne({ email });
-  if (!user) return res.status(404).json({ message: "Utilisateur introuvable" });
+  if (!user) return res.status(404).json({ message: "Email ou mot de passe incorrect" });
 
   const valid = await bcrypt.compare(password, user.passwordHash);
-  if (!valid) return res.status(401).json({ message: "Mot de passe incorrect" });
+  if (!valid) return res.status(401).json({ message: "Email ou mot de passe incorrect" });
 
   const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET);
 

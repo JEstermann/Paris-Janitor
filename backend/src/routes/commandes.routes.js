@@ -46,6 +46,77 @@ router.post("/pay/:id", auth, async (req, res) => {
   res.json({ clientSecret: paymentIntent.client_secret });
 });
 
+// ADMIN — confirmer une commande
+router.put("/:id/confirm", auth, async (req, res) => {
+  if (req.user.role !== "admin")
+    return res.status(403).json({ message: "Accès interdit" });
+
+  const commande = await Commande.findById(req.params.id);
+
+  if (!commande) return res.status(404).json({ message: "Commande introuvable" });
+  if (commande.status !== "demande")
+    return res.status(400).json({ message: "La commande ne peut pas être confirmée" });
+
+  commande.status = "confirmee";
+  await commande.save();
+
+  res.json({ message: "Commande confirmée", commande });
+});
+
+
+// PRESTATAIRE — démarrer une intervention
+router.put("/:id/start", auth, async (req, res) => {
+  if (req.user.role !== "prestataire")
+    return res.status(403).json({ message: "Accès interdit" });
+
+  const commande = await Commande.findById(req.params.id);
+
+  if (!commande) return res.status(404).json({ message: "Commande introuvable" });
+  if (commande.status !== "confirmee")
+    return res.status(400).json({ message: "La commande ne peut pas être démarrée" });
+
+  commande.status = "en_cours";
+  await commande.save();
+
+  res.json({ message: "Intervention démarrée", commande });
+});
+
+
+// PRESTATAIRE — terminer une intervention
+router.put("/:id/finish", auth, async (req, res) => {
+  if (req.user.role !== "prestataire")
+    return res.status(403).json({ message: "Accès interdit" });
+
+  const commande = await Commande.findById(req.params.id);
+
+  if (!commande) return res.status(404).json({ message: "Commande introuvable" });
+  if (commande.status !== "en_cours")
+    return res.status(400).json({ message: "La commande ne peut pas être terminée" });
+
+  commande.status = "terminee";
+  await commande.save();
+
+  res.json({ message: "Intervention terminée", commande });
+});
+
+
+// VOYAGEUR — annuler une commande
+router.put("/:id/cancel", auth, async (req, res) => {
+  if (req.user.role !== "voyageur")
+    return res.status(403).json({ message: "Accès interdit" });
+
+  const commande = await Commande.findById(req.params.id);
+
+  if (!commande) return res.status(404).json({ message: "Commande introuvable" });
+  if (["en_cours", "terminee"].includes(commande.status))
+    return res.status(400).json({ message: "Impossible d'annuler cette commande" });
+
+  commande.status = "annulee";
+  await commande.save();
+
+  res.json({ message: "Commande annulée", commande });
+});
+
 
 module.exports = router;
 
@@ -121,4 +192,144 @@ module.exports = router;
  *     responses:
  *       200:
  *         description: Client secret Stripe retourné
+ */
+
+/**
+ * @swagger
+ * /commandes/{id}/confirm:
+ *   put:
+ *     summary: Confirmer une commande (admin)
+ *     tags: [Commandes]
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         description: ID de la commande
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Commande confirmée
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 commande:
+ *                   $ref: '#/components/schemas/Commande'
+ *       400:
+ *         description: La commande ne peut pas être confirmée
+ *       403:
+ *         description: Accès interdit (non admin)
+ *       404:
+ *         description: Commande introuvable
+ */
+
+/**
+ * @swagger
+ * /commandes/{id}/start:
+ *   put:
+ *     summary: Démarrer une intervention (prestataire)
+ *     tags: [Commandes]
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         description: ID de la commande
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Intervention démarrée
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 commande:
+ *                   $ref: '#/components/schemas/Commande'
+ *       400:
+ *         description: La commande ne peut pas être démarrée
+ *       403:
+ *         description: Accès interdit (non prestataire)
+ *       404:
+ *         description: Commande introuvable
+ */
+
+/**
+ * @swagger
+ * /commandes/{id}/finish:
+ *   put:
+ *     summary: Terminer une intervention (prestataire)
+ *     tags: [Commandes]
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         description: ID de la commande
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Intervention terminée
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 commande:
+ *                   $ref: '#/components/schemas/Commande'
+ *       400:
+ *         description: La commande ne peut pas être terminée
+ *       403:
+ *         description: Accès interdit (non prestataire)
+ *       404:
+ *         description: Commande introuvable
+ */
+
+/**
+ * @swagger
+ * /commandes/{id}/cancel:
+ *   put:
+ *     summary: Annuler une commande (voyageur)
+ *     tags: [Commandes]
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         description: ID de la commande
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Commande annulée
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 commande:
+ *                   $ref: '#/components/schemas/Commande'
+ *       400:
+ *         description: Impossible d'annuler cette commande
+ *       403:
+ *         description: Accès interdit (non voyageur)
+ *       404:
+ *         description: Commande introuvable
  */

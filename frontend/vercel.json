@@ -1,28 +1,29 @@
 {
-  "version": 2,
-  "builds": [
-    {
-      "src": "package.json",
-      "use": "@vercel/static-build",
-      "config": { "distDir": "dist" }
+  "services": {
+    "frontend": {
+      "root": "frontend",
+      "framework": "vite"
     }
-  ],
-  "routes": [
+  },
+  "rewrites": [
     {
-      "src": "/api/(.*)",
-      "dest": "https://$BACKEND_DOMAIN/api/$1"
+      "source": "/api(/.*)?",
+      "destination": "https://paris-janitor-backend.onrender.com/api$1"
     },
     {
-      "src": "/stripe/webhook",
-      "dest": "https://$BACKEND_DOMAIN/stripe/webhook"
+      "source": "/stripe/webhook",
+      "destination": "https://paris-janitor-backend.onrender.com/stripe/webhook"
     },
     {
-      "src": "/(.*)",
-      "dest": "/index.html"
+      "source": "/(.*)",
+      "destination": {
+        "type": "service",
+        "service": "frontend"
+      }
     }
   ],
   "env": {
-    "VITE_API_URL": "https://$BACKEND_DOMAIN",
+    "VITE_API_URL": "https://paris-janitor-backend.onrender.com",
     "VITE_STRIPE_PUBLISHABLE_KEY": "$VITE_STRIPE_PUBLISHABLE_KEY"
   }
 }

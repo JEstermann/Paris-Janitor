@@ -1,0 +1,10 @@
+export { default as authController } from './authController';
+export { default as prestationController } from './prestationController';
+export { default as commandeController } from './commandeController';
+export { default as prestataireController } from './prestataireController';
+export { default as factureController } from './factureController';
+export { default as adminController } from './adminController';
+export { default as vipController } from './vipController';
+export { default as notificationController } from './notificationController';
+export { default as messageController } from './messageController';
+export { default as api } from './api';

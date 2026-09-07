@@ -23,6 +23,6 @@
   ],
   "env": {
     "VITE_API_URL": "https://$BACKEND_DOMAIN",
-    "VITE_STRIPE_PUBLISHABLE_KEY": "@stripe_publishable_key"
+    "VITE_STRIPE_PUBLISHABLE_KEY": "$VITE_STRIPE_PUBLISHABLE_KEY"
   }
 }

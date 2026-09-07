@@ -9,7 +9,16 @@ const cors = require("cors");
 const connectDB = require("./config/db");
 
 const app = express();
-app.use(cors());
+
+// CORS configurable via env variable (séparé par des virgules)
+const corsOrigins = process.env.CORS_ORIGIN
+  ? process.env.CORS_ORIGIN.split(",").map(o => o.trim())
+  : ["http://localhost:5173", "http://localhost:3000"];
+
+app.use(cors({
+  origin: corsOrigins,
+  credentials: true
+}));
 
 app.use(
   "/stripe/webhook",
@@ -41,7 +50,12 @@ if (process.env.NODE_ENV !== "test") {
 // Only start server if not in test environment
 if (process.env.NODE_ENV !== "test") {
   const PORT = process.env.PORT || 5000;
-  app.listen(PORT, () => console.log(`API lancée sur http://localhost:${PORT}`));
+  app.listen(PORT, "0.0.0.0", () => console.log(`API lancée sur http://0.0.0.0:${PORT}`));
 }
+
+// Health check endpoint (pour Render)
+app.get("/health", (req, res) => {
+  res.json({ status: "ok", timestamp: new Date().toISOString() });
+});
 
 module.exports = app;

@@ -21,7 +21,9 @@ app.use(cors({
   allowedHeaders: ["Content-Type", "Authorization"]
 }));
 
-app.options("*", cors());
+app.options("*", (req, res) => {
+  res.sendStatus(204);
+});
 
 app.post(
   "/stripe/webhook",

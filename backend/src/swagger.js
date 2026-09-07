@@ -7,8 +7,11 @@ const options = {
     info: {
       title: "Paris Janitor API",
       version: "1.0.0",
-      description: "Documentation de l'API Paris Janitor"
+      description: "API backend pour Paris Janitor - Gestion des voyageurs, prestataires et prestations"
     },
+    servers: [
+      { url: "http://localhost:5000", description: "Serveur de développement" }
+    ],
     components: {
       securitySchemes: {
         BearerAuth: {
@@ -21,15 +24,18 @@ const options = {
     security: [{ BearerAuth: [] }]
   },
   apis: [
-    "./src/routes/*.js",   
-    "./src/models/*.js"    
+    "./src/routes/*.js",
+    "./src/models/*.js"
   ]
 };
 
 const swaggerSpec = swaggerJsdoc(options);
 
 function swaggerDocs(app) {
-  app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+  app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+    customCss: ".swagger-ui .topbar { display: none }",
+    customSiteTitle: "Paris Janitor API Docs"
+  }));
   console.log("Swagger disponible sur http://localhost:5000/docs");
 }
 

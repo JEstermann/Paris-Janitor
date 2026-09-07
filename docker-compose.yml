@@ -1,0 +1,62 @@
+services:
+  backend:
+    container_name: paris-janitor-backend
+    build: ./backend
+    restart: always
+    ports:
+      - "5000:5000"
+    environment:
+      MONGO_URI: mongodb://mongo:27017/parisjanitor
+      MINIO_ENDPOINT: minio
+      MINIO_PORT: 9000
+      MINIO_ACCESS_KEY: minioadmin
+      MINIO_SECRET_KEY: minioadmin
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET}
+    depends_on:
+      - mongo
+      - minio
+
+  frontend:
+    container_name: paris-janitor-frontend
+    build: ./frontend
+    restart: always
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+
+  mongo:
+    container_name: paris-janitor-mongo
+    image: mongo:6
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+  minio:
+    container_name: paris-janitor-minio
+    image: minio/minio
+    restart: always
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio_data:/data
+
+  stripe:
+    image: stripe/stripe-cli:v1.50.10
+    environment:
+      STRIPE_API_KEY: ${STRIPE_SECRET_KEY}
+    command: listen --forward-to http://backend:5000/stripe/webhook
+    depends_on:
+      - backend
+
+volumes:
+  mongo_data:
+  minio_data:

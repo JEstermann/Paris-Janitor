@@ -23,7 +23,7 @@ const CommandeSchema = new mongoose.Schema({
 
   status: {
     type: String,
-    enum: ["demande", "confirmee", "en_cours", "terminee", "annulee"],
+    enum: ["demande", "confirmee", "payee", "en_cours", "terminee", "annulee"],
     default: "demande"
   },
 
@@ -48,7 +48,9 @@ const CommandeSchema = new mongoose.Schema({
   factureId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Facture"
-  }
+  },
+
+  vipFreebieApplied: { type: Boolean, default: false }
 }, { timestamps: true });
 
 module.exports = mongoose.model("Commande", CommandeSchema);

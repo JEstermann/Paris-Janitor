@@ -1,3 +1,46 @@
+# Dependencies
 /backend/node_modules
+/frontend/node_modules
+
+# Environment files
+.env
+.env.test
 backend/.env
+backend/.env.test
+backend/.env.local
+backend/.env.production
+
+# Lock files (commit package-lock.json)
 backend/package-lock.json
+frontend/package-lock.json
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# Test coverage
+/backend/coverage
+/frontend/coverage
+
+# Build outputs
+/frontend/build
+/frontend/dist
+/backend/dist
+
+# Docker
+docker-compose.override.yml
+
+# Temporary files
+*.tmp
+*.bak
+*.swp

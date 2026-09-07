@@ -112,6 +112,66 @@ components:
         totalCA:
           type: number
 
+    Facture:
+      type: object
+      properties:
+        _id:
+          type: string
+        commandeId:
+          type: string
+        destinataireId:
+          type: string
+        montantHT:
+          type: number
+        montantTTC:
+          type: number
+        TVA:
+          type: number
+        commissionPJ:
+          type: number
+        dateEmission:
+          type: string
+          format: date-time
+        pdfPath:
+          type: string
+        statutPaiement:
+          type: string
+          enum: [paid, pending, failed]
+
+    Intervention:
+      type: object
+      properties:
+        _id:
+          type: string
+        commandeId:
+          type: string
+        prestataireId:
+          type: string
+        details:
+          type: string
+        heureDebut:
+          type: string
+          format: date-time
+        heureFin:
+          type: string
+          format: date-time
+        photosAvant:
+          type: array
+          items:
+            type: string
+        photosApres:
+          type: array
+          items:
+            type: string
+
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+        error:
+          type: string
+
 paths:
   /:
     get:
@@ -367,3 +427,115 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Stats'
+
+  /factures:
+    get:
+      summary: Liste toutes les factures (admin)
+      tags: [Factures]
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Liste des factures
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Facture'
+        '403':
+          description: Accès interdit (non admin)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /factures/commande/{commandeId}:
+    get:
+      summary: Télécharger la facture PDF d'une commande
+      tags: [Factures]
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: commandeId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Fichier PDF retourné
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        '403':
+          description: Accès interdit
+        '404':
+          description: Commande introuvable
+    post:
+      summary: Générer une facture pour une commande (admin)
+      tags: [Factures]
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: commandeId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '201':
+          description: Facture créée
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Facture'
+        '400':
+          description: Une facture existe déjà
+        '403':
+          description: Accès interdit (non admin)
+        '404':
+          description: Commande introuvable
+
+  /factures/{id}:
+    get:
+      summary: Détails d'une facture
+      tags: [Factures]
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Détails de la facture
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Facture'
+        '403':
+          description: Accès interdit
+        '404':
+          description: Facture introuvable
+
+  /stripe/webhook:
+    post:
+      summary: Webhook Stripe pour la confirmation de paiement
+      tags: [Stripe]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: Payload envoyé par Stripe
+      responses:
+        '200':
+          description: Webhook reçu et traité
+        '400':
+          description: Signature Stripe invalide

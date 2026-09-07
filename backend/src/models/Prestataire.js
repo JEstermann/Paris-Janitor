@@ -5,6 +5,13 @@ const PrestataireSchema = new mongoose.Schema({
   email: String,
   phone: String,
 
+  // Lien vers le compte User associé
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    index: true
+  },
+
   validated: { type: Boolean, default: false },
 
   habilitations: [String],

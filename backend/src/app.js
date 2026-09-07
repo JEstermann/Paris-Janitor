@@ -1,4 +1,3 @@
-// Charger les polyfills AVANT tout le reste (crypto pour mongodb)
 require("./polyfills");
 require("./crypto-polyfill");
 
@@ -14,28 +13,23 @@ const corsOrigins = process.env.CORS_ORIGIN
   ? process.env.CORS_ORIGIN.split(",").map(o => o.trim())
   : ["http://localhost:5173", "http://localhost:3000"];
 
-app.use(cors({
-  origin: corsOrigins,
-  credentials: true,
-  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"]
-}));
-
 app.use((req, res, next) => {
+  const origin = req.headers.origin;
+
+  if (corsOrigins.includes(origin)) {
+    res.header("Access-Control-Allow-Origin", origin);
+  }
+
+  res.header("Access-Control-Allow-Credentials", "true");
+  res.header("Access-Control-Allow-Methods", "GET,POST,PUT,PATCH,DELETE,OPTIONS");
+  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+
   if (req.method === "OPTIONS") {
-    const origin = req.headers.origin;
-
-    if (corsOrigins.includes(origin)) {
-      res.header("Access-Control-Allow-Origin", origin);
-    }
-
-    res.header("Access-Control-Allow-Methods", "GET,POST,PUT,PATCH,DELETE,OPTIONS");
-    res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
     return res.sendStatus(204);
   }
+
   next();
 });
-
 
 app.post(
   "/stripe/webhook",
@@ -59,12 +53,10 @@ app.use("/messages", require("./routes/messages.routes"));
 const swaggerDocs = require("./swagger");
 swaggerDocs(app);
 
-// Connect to DB only if not in test environment
 if (process.env.NODE_ENV !== "test") {
   connectDB();
 }
 
-// Only start server if not in test environment
 if (process.env.NODE_ENV !== "test") {
   const PORT = process.env.PORT || 5000;
   app.listen(PORT, "0.0.0.0", () =>
@@ -72,7 +64,6 @@ if (process.env.NODE_ENV !== "test") {
   );
 }
 
-// Health check endpoint (pour Render)
 app.get("/health", (req, res) => {
   res.json({ status: "ok", timestamp: new Date().toISOString() });
 });

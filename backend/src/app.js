@@ -4,8 +4,6 @@ require("./crypto-polyfill");
 
 require("dotenv").config();
 
-console.log("CORS_ORIGIN =", process.env.CORS_ORIGIN);
-
 const express = require("express");
 const cors = require("cors");
 const connectDB = require("./config/db");
@@ -25,13 +23,19 @@ app.use(cors({
 
 app.use((req, res, next) => {
   if (req.method === "OPTIONS") {
-    res.header("Access-Control-Allow-Origin", corsOrigins);
+    const origin = req.headers.origin;
+
+    if (corsOrigins.includes(origin)) {
+      res.header("Access-Control-Allow-Origin", origin);
+    }
+
     res.header("Access-Control-Allow-Methods", "GET,POST,PUT,PATCH,DELETE,OPTIONS");
     res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
     return res.sendStatus(204);
   }
   next();
 });
+
 
 app.post(
   "/stripe/webhook",

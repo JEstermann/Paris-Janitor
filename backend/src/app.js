@@ -4,6 +4,8 @@ require("./crypto-polyfill");
 
 require("dotenv").config();
 
+console.log("CORS_ORIGIN =", process.env.CORS_ORIGIN);
+
 const express = require("express");
 const cors = require("cors");
 const connectDB = require("./config/db");

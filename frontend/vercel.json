@@ -16,7 +16,7 @@
     },
     {
       "source": "/(.*)",
-      "destination": "https://paris-janitor-backend.onrender.com"
+      "destination": "https://paris-janitor-psi.vercel.app/"
     }
   ],
   "env": {

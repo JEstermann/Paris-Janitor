@@ -16,10 +16,7 @@
     },
     {
       "source": "/(.*)",
-      "destination": {
-        "type": "service",
-        "service": "frontend"
-      }
+      "destination": "https://paris-janitor-backend.onrender.com"
     }
   ],
   "env": {

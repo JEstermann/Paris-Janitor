@@ -68,4 +68,18 @@ app.get("/health", (req, res) => {
   res.json({ status: "ok", timestamp: new Date().toISOString() });
 });
 
+const minioClient = require("./config/minio");
+minioClient.bucketExists("paris-janitor", (err, exists) => {
+  if (err) return console.log("Erreur MinIO :", err);
+
+  if (!exists) {
+    minioClient.makeBucket("paris-janitor", "", (err) => {
+      if (err) return console.log("Erreur création bucket :", err);
+      console.log("Bucket 'paris-janitor' créé !");
+    });
+  } else {
+    console.log("Bucket 'paris-janitor' existe déjà.");
+  }
+});
+
 module.exports = app;

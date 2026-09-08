@@ -35,3 +35,7 @@ services:
         sync: false
       - key: MINIO_USE_SSL
         value: "true"
+Redirects:
+  - source: /*
+    destination: /index.html
+    type: 200

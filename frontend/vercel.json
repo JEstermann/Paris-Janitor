@@ -14,10 +14,13 @@
       "source": "/stripe/webhook",
       "destination": "https://paris-janitor-backend.onrender.com/stripe/webhook"
     },
-    { 
-      "source": "/(.*)", 
-      "destination": "/index.html"
-   }
+    {
+      "source": "/(.*)",
+      "destination": {
+        "type": "service",
+        "service": "frontend"
+      }
+    }
   ],
   "env": {
     "VITE_API_URL": "https://paris-janitor-backend.onrender.com",

@@ -78,29 +78,39 @@ router.post("/", async (req, res) => {
     // Vérifier si une facture existe déjà pour cette commande
     let facture = await Facture.findOne({ commandeId: commande._id });
     if (!facture) {
-      // Génération facture PDF
+      const fileName = `facture-${commande._id}.pdf`;
+
+      // Générer le PDF (sans MinIO si indisponible)
+      let pdfBuffer = null;
       try {
-        const pdfBuffer = await generateFacturePDF(commande);
-        const fileName = `facture-${commande._id}.pdf`;
-        await uploadToMinio(pdfBuffer, fileName);
-
-        // Créer le document Facture en BDD
-        facture = await Facture.create({
-          commandeId: commande._id,
-          destinataireId: commande.userId,
-          montantHT: commande.montantHT,
-          montantTTC: commande.montantTTC,
-          TVA: commande.montantTTC - commande.montantHT,
-          commissionPJ: commande.commissionPJ,
-          pdfPath: fileName,
-          statutPaiement: "paid"
-        });
-
-        // Lier la facture à la commande
-        commande.factureId = facture._id;
+        pdfBuffer = await generateFacturePDF(commande);
       } catch (err) {
-        console.error("Erreur génération/upload facture:", err.message);
+        console.error("Erreur génération PDF:", err.message);
       }
+
+      // Uploader en MinIO si disponible (non bloquant)
+      if (pdfBuffer) {
+        try {
+          await uploadToMinio(pdfBuffer, fileName);
+        } catch (err) {
+          console.warn("MinIO indisponible - PDF non uploadé:", err.message);
+        }
+      }
+
+      // Créer le document Facture en BDD (toujours, même sans MinIO)
+      facture = await Facture.create({
+        commandeId: commande._id,
+        destinataireId: commande.userId,
+        montantHT: commande.montantHT,
+        montantTTC: commande.montantTTC,
+        TVA: commande.montantTTC - commande.montantHT,
+        commissionPJ: commande.commissionPJ,
+        pdfPath: fileName,
+        statutPaiement: "paid"
+      });
+
+      // Lier la facture à la commande
+      commande.factureId = facture._id;
     }
 
     // Mise à jour statut

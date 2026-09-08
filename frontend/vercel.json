@@ -16,7 +16,10 @@
     },
     {
       "source": "/(.*)",
-      "destination": "https://paris-janitor-psi.vercel.app/"
+      "destination": {
+        "type": "service",
+        "service": "frontend"
+      }
     }
   ],
   "env": {

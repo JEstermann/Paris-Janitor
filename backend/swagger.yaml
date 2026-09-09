@@ -5,7 +5,7 @@ info:
   description: API backend pour Paris Janitor (Voyageurs + Administration)
 
 servers:
-  - url: https://paris-janitor-minio.onrender.com
+  - url: https://paris-janitor-backend.onrender.com
 
 components:
   securitySchemes:

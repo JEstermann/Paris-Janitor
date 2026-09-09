@@ -10,7 +10,7 @@ const options = {
       description: "API backend pour Paris Janitor - Gestion des voyageurs, prestataires et prestations"
     },
     servers: [
-      { url: "https://paris-janitor-minio.onrender.com", description: "Serveur de développement" }
+      { url: "https://paris-janitor-backend.onrender.com", description: "Serveur de développement" }
     ],
     components: {
       securitySchemes: {
@@ -36,7 +36,7 @@ function swaggerDocs(app) {
     customCss: ".swagger-ui .topbar { display: none }",
     customSiteTitle: "Paris Janitor API Docs"
   }));
-  console.log("Swagger disponible sur  https://paris-janitor-minio.onrender.com/docs");
+  console.log("Swagger disponible sur  https://paris-janitor-backend.onrender.com/docs");
 }
 
 module.exports = swaggerDocs;
